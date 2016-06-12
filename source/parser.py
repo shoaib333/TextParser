@@ -86,14 +86,16 @@ class MyFrame(Frame):
 
         # Displaying input field where user can enter their filters
         vcmd = self.master.register(self.validate) # we have to wrap the command
-        self.entry = Entry(self.menuFrame, validate="key", validatecommand=(vcmd, '%P'))
+        self.entry = Entry(self.menuFrame, validate="key", validatecommand=(vcmd, '%P'), width=20)
         self.entry.pack(side="left")
         self.entry.grid(row=1, column = 1)
 
+        self.button = Button(self.menuFrame, text="Apply Filter", command=self.ApplyFilter, width=20)
+        self.button.grid(row=1, column=2)
+
         self.FilterFrame = Frame(self.mainFrame, width = 20, height = 10)
         self.FilterFrame.grid(row = 1, column = 0, rowspan=1)
-        self.button = Button(self.FilterFrame, text="Apply Filter", command=self.ApplyFilter, width=20)
-        self.button.grid(row=0, column=0)
+
 
         self.button = Button(self.FilterFrame, text="Temp", command=self.ApplyFilter, width=20)
         self.button.grid(row=0, column=1)
@@ -121,11 +123,8 @@ class MyFrame(Frame):
         if filteredString == "":
             print "No filter string is entered"
             return
-
         file =  tkFileDialog.asksaveasfile(filetypes=(("text files", "*.txt"), ("All files", "*.*")))
-
         #TODO: here parse the string according to the filter output the file
-
 
         #write data in the file
         v = open(file.name,'w')
@@ -141,15 +140,34 @@ class MyFrame(Frame):
                 if tempString.find(tempFilter) != -1:
                     print "Raw Data:"+ self.data[i].rawLineString
                     v.writelines(self.data[i].rawLineString)
-
-                    self.txt.config(state=NORMAL)
-                    self.txt.insert(END, self.data[i].rawLineString)
-                    self.txt.config(state=DISABLED)
                     break
         v.close()
 
     def ApplyFilter(self):
+
         print "Applying the entered filter to the loaded file"
+        filteredString = self.parseFilterString()
+
+        if filteredString == "":
+            print "No filter string is entered"
+            # TODO: print the dialog box, with the message
+            return
+
+        #write data in the file
+        count = len(self.data)
+        for i in range(0, count-2):
+            for j in range(1, len(filteredString)):
+                #TODO: chcek this out!... if re.match(self.data[i].rawLineString, filteredString[j]) != None:
+                tempString = self.data[i].rawLineString
+                tempFilter = filteredString[j]
+                tempString = tempString.upper()
+                tempFilter = tempFilter.upper()
+                if tempString.find(tempFilter) != -1:
+                    self.txt.config(state=NORMAL)
+                    self.txt.insert(END, self.data[i].rawLineString)
+                    self.txt.config(state=DISABLED)
+                    break
+        #data is printed on the text view container
 
     def parseFilterString(self):
         rawString = self.enteredFilter              #getting filtered
