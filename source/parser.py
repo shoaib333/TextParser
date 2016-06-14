@@ -58,7 +58,7 @@ class MyFrame(Frame):
         self.grid(sticky=W + E + N + S)
         self.enteredFilter = 'None'
         self.data = 'None'              #variable to store the parsed log file
-
+        self.TextCanvas = None
         #Create a Frame placeholder that will hold all other frames
         self.mainFrame = Frame(self.master, width = 1000, height = 1000)
         self.mainFrame.grid()
@@ -103,7 +103,7 @@ class MyFrame(Frame):
         self.textFrame=Frame(self.mainFrame,width=100,height=100)
         self.textFrame.grid(row=1,column = 1)
 
-        canvas=Canvas(self.textFrame,bg='#FFFFFF',width=100,height=10,scrollregion=(0,0,200,500))
+        self.TextCanvas=Canvas(self.textFrame,bg='#FFFFFF',width=100,height=10,scrollregion=(0,0,200,500))
 
         vbar=Scrollbar(self.textFrame,orient=VERTICAL)
         vbar.pack(side=RIGHT,fill=Y)
@@ -112,9 +112,9 @@ class MyFrame(Frame):
         self.txt.config(state=DISABLED)
         self.txt.pack(expand=True)
 
-        vbar.config(command=canvas.yview)
-        canvas.config(yscrollcommand=vbar.set)
-        canvas.pack()
+        vbar.config(command=self.TextCanvas.yview)
+        self.TextCanvas.config(yscrollcommand=vbar.set)
+        self.TextCanvas.pack()
 
 
     def generateFile(self):
@@ -153,7 +153,10 @@ class MyFrame(Frame):
             # TODO: print the dialog box, with the message
             return
 
-        #write data in the file
+        self.txt.config(state=NORMAL)
+        self.txt.delete("1.0",END)
+        self.txt.config(state=DISABLED)
+        # write data in the file
         count = len(self.data)
         for i in range(0, count-2):
             for j in range(1, len(filteredString)):
