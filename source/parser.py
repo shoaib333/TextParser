@@ -2,6 +2,7 @@ from Tkinter import *
 import tkFileDialog
 from LineInfo import *
 from  grammar import *
+from textWindow import *
 
 #pass/fail enums
 TC_FAIL = -1
@@ -19,8 +20,10 @@ def file_len(fname):                                    #calculate number of lin
     return i + 1
 
 #Function to load the log file, and populate then contents in the array
-def load_file_as_array(fname=""):                       #load file line by line into object
+def load_file_as_array(self = None, fname=""):                       #load file line by line into object
     if fname == "":                                     # if no file name is present return failure
+        txtWindow = popupWindow(self.master, "No file is Selected, kindly Select a file")
+        self.master.wait_window(txtWindow.top)
         print "No file is selected"
         return TC_FAIL
 
@@ -63,7 +66,6 @@ class MyFrame(Frame):
         self.mainFrame = Frame(self.master, width = 1000, height = 1000)
         self.mainFrame.grid()
         # self.mainFrame.pack_configure(side = LEFT, expand = True)
-
 
         self.menuFrame = Frame(self.mainFrame, width = 10)
         self.menuFrame.pack_configure(side="left")
@@ -121,7 +123,9 @@ class MyFrame(Frame):
         filteredString = self.parseFilterString()
 
         if filteredString == "":
-            print "No filter string is entered"
+            txtWindow = popupWindow(self.master, "No filter string is entered \n kindly enter a filter string")
+            self.master.wait_window(txtWindow.top)
+            print "No filter is entered"
             return
         file =  tkFileDialog.asksaveasfile(filetypes=(("text files", "*.txt"), ("All files", "*.*")))
         #TODO: here parse the string according to the filter output the file
@@ -149,6 +153,8 @@ class MyFrame(Frame):
         filteredString = self.parseFilterString()
 
         if filteredString == "":
+            txtWindow = popupWindow(self.master, "No filter string is entered \n kindly enter a filter string")
+            self.master.wait_window(txtWindow.top)
             print "No filter string is entered"
             # TODO: print the dialog box, with the message
             return
@@ -176,6 +182,9 @@ class MyFrame(Frame):
         rawString = self.enteredFilter              #getting filtered
 
         if rawString == "":
+            txtWindow = popupWindow(self.master, "No filter string is entered \n kindly enter a filter string")
+            self.master.wait_window(txtWindow.top)
+
             print "No filter string is entered"
             return ""
 
@@ -219,11 +228,13 @@ class MyFrame(Frame):
             tkFileDialog.showerror("Open Source File", "Failed to read file\n'%s'" % fname)
             return
 
-        data = load_file_as_array(fname)           # load file and copy lines into objects
+        data = load_file_as_array(self, fname)           # load file and copy lines into objects
 
         if data != TC_FAIL:
             self.data = data
         else:
+            txtWindow = popupWindow(self.master, "ERROR: Data could not be loaded from the file")
+            self.master.wait_window(txtWindow.top)
             print "Data could not be loaded from the file"
 
         print "printed"
