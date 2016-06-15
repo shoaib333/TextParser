@@ -55,22 +55,31 @@ class MyFrame(Frame):
         self.master.title("Parser")
         #setting window to screen size
         self.master.geometry('{}x{}'.format(self.winfo_screenwidth(),self.winfo_screenheight()))
-
         self.master.rowconfigure(100, weight=1)
         self.master.columnconfigure(100, weight=1)
         self.grid(sticky=W + E + N + S)
-        self.enteredFilter = 'None'
-        self.data = 'None'              #variable to store the parsed log file
-        self.TextCanvas = None
+        self.enteredFilter = 'None'     # To store the filter string
+        self.data = 'None'              # Variable to store the parsed log file
+
         #Create a Frame placeholder that will hold all other frames
         self.mainFrame = Frame(self.master, width = (self.winfo_screenwidth()-50), height = (self.winfo_screenheight()-50))
         self.mainFrame.grid()
+        self.mainFrame.config(relief = RIDGE, borderwidth=2)
         # self.mainFrame.pack_configure(side = LEFT, expand = True)
 
-        self.menuFrame = Frame(self.mainFrame, width = 60)
-        self.menuFrame.pack_configure(side="left")
-        self.menuFrame.grid(row = 0, column = 0)
+        # crete menu frame that will hold all the buttons
+        self.createMenuFrame()
 
+        # crete text frame that will control Text gui
+        self.createTextFrame()
+
+    # Create a menu frame this section contains all of the gui control
+    def createMenuFrame(self):
+
+        self.menuFrame = Frame(self.mainFrame, width=60, height=20)
+        self.menuFrame.pack_configure(side="left")
+        self.menuFrame.grid(row=0, column=0)  # Place it on the top left corner
+        self.menuFrame.config(relief=RIDGE, borderwidth = 2)
         # Add button to load file to parse
         self.button = Button(self.menuFrame, text="Browse File to Parse", command=self.load_file, width=20)
         self.button.grid(row=0, column=0)
@@ -79,42 +88,41 @@ class MyFrame(Frame):
         self.button = Button(self.menuFrame, text="Browse schema", command=self.load_schema, width=20)
         self.button.grid(row=0, column=1)
 
+        # Add button to store the filtered file on drive
         self.button = Button(self.menuFrame, text="Generate File", command=self.generateFile, width=20)
         self.button.grid(row=0, column=2)
 
         # Text label for Filter
         self.filterlable = Label(self.menuFrame, text="Filter")
-        self.filterlable.grid(row =1, column =0)
+        self.filterlable.grid(row=1, column=0)
 
-        # Displaying input field where user can enter their filters
-        vcmd = self.master.register(self.validate) # we have to wrap the command
+        # Displaying input field where user can enter filter strings
+        vcmd = self.master.register(self.validate)  # We have to wrap the command
         self.entry = Entry(self.menuFrame, validate="key", validatecommand=(vcmd, '%P'), width=20)
         self.entry.pack(side="left")
-        self.entry.grid(row=1, column = 1)
+        self.entry.grid(row=1, column=1)
 
         self.button = Button(self.menuFrame, text="Apply Filter", command=self.ApplyFilter, width=20)
         self.button.grid(row=1, column=2)
 
-        self.FilterFrame = Frame(self.mainFrame, width = 20, height = 10)
-        self.FilterFrame.grid(row = 1, column = 0, rowspan=1)
+    # This section contains text field gui control
+    def createTextFrame(self):
 
-
-        self.button = Button(self.FilterFrame, text="Temp", command=self.ApplyFilter, width=20)
-        self.button.grid(row=0, column=1)
-
-        self.textFrame=Frame(self.mainFrame,width=180,height=50)
-        self.textFrame.pack(fill="both", expand = True)
-        self.textFrame.grid(row=1,column = 1)
+        # TEXT FRAME
+        self.textFrame = Frame(self.mainFrame, width=500, height=100)
+        self.textFrame.pack(fill="both", expand=True)
+        self.textFrame.grid(row=01, column=01)
+        self.textFrame.config(relief=RIDGE, borderwidth = 2)
         # ensure a consistent GUI size
-        #self.textFrame.grid_propagate(False)
+        # self.textFrame.grid_propagate(False)
 
         # implement stretchability
-        self.textFrame.grid_rowconfigure(0, weight =1)
+        self.textFrame.grid_rowconfigure(0, weight=1)
         self.textFrame.grid_columnconfigure(0, weight=1)
 
-        #Create A Text Widget
+        # Create A Text Widget
 
-        self.txt = Text(self.textFrame, borderwidth = 3, relief="sunken", width = 150, height= 45)
+        self.txt = Text(self.textFrame, borderwidth=3, relief="sunken", width=150, height=45)
         self.txt.config(font=("consolas", 12), undo=True, wrap=NONE)
         self.txt.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
 
@@ -122,10 +130,10 @@ class MyFrame(Frame):
         Yscrollb = Scrollbar(self.textFrame, command=self.txt.yview)
         Yscrollb.grid(row=0, column=1, sticky='nsew')
 
-        Xscrollb = Scrollbar(self.textFrame, command=self.txt.xview, orient = HORIZONTAL)
+        Xscrollb = Scrollbar(self.textFrame, command=self.txt.xview, orient=HORIZONTAL)
         Xscrollb.grid(row=1, column=0, sticky='nsew')
 
-        self.txt.config(xscrollcommand = Xscrollb.set, yscrollcommand = Yscrollb.set)
+        self.txt.config(xscrollcommand=Xscrollb.set, yscrollcommand=Yscrollb.set)
 
 
     def generateFile(self):
@@ -235,6 +243,12 @@ class MyFrame(Frame):
             print "file name is " + str(fname)
         except:  # <- naked except is a bad idea
             tkFileDialog.showerror("Open Source File", "Failed to read file\n'%s'" % fname)
+            return
+
+        if fname == "":  # if no file name is present return failure
+            txtWindow = popupWindow(self.master, "No file is Selected, kindly Select a file")
+            self.master.wait_window(txtWindow.top)
+            print "No file is selected"
             return
 
         data = load_file_as_array(self, fname)           # load file and copy lines into objects
