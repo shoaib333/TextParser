@@ -63,11 +63,11 @@ class MyFrame(Frame):
         self.data = 'None'              #variable to store the parsed log file
         self.TextCanvas = None
         #Create a Frame placeholder that will hold all other frames
-        self.mainFrame = Frame(self.master, width = 1000, height = 1000)
+        self.mainFrame = Frame(self.master, width = (self.winfo_screenwidth()-50), height = (self.winfo_screenheight()-50))
         self.mainFrame.grid()
         # self.mainFrame.pack_configure(side = LEFT, expand = True)
 
-        self.menuFrame = Frame(self.mainFrame, width = 10)
+        self.menuFrame = Frame(self.mainFrame, width = 60)
         self.menuFrame.pack_configure(side="left")
         self.menuFrame.grid(row = 0, column = 0)
 
@@ -102,21 +102,30 @@ class MyFrame(Frame):
         self.button = Button(self.FilterFrame, text="Temp", command=self.ApplyFilter, width=20)
         self.button.grid(row=0, column=1)
 
-        self.textFrame=Frame(self.mainFrame,width=100,height=100)
+        self.textFrame=Frame(self.mainFrame,width=180,height=50)
+        self.textFrame.pack(fill="both", expand = True)
         self.textFrame.grid(row=1,column = 1)
+        # ensure a consistent GUI size
+        #self.textFrame.grid_propagate(False)
 
-        self.TextCanvas=Canvas(self.textFrame,bg='#FFFFFF',width=100,height=10,scrollregion=(0,0,200,500))
+        # implement stretchability
+        self.textFrame.grid_rowconfigure(0, weight =1)
+        self.textFrame.grid_columnconfigure(0, weight=1)
 
-        vbar=Scrollbar(self.textFrame,orient=VERTICAL)
-        vbar.pack(side=RIGHT,fill=Y)
-        print "screen height " + str(self.winfo_screenheight())
-        self.txt = Text(self.textFrame, width = 110, height = 40)
-        self.txt.config(state=DISABLED)
-        self.txt.pack(expand=True)
+        #Create A Text Widget
 
-        vbar.config(command=self.TextCanvas.yview)
-        self.TextCanvas.config(yscrollcommand=vbar.set)
-        self.TextCanvas.pack()
+        self.txt = Text(self.textFrame, borderwidth = 3, relief="sunken", width = 150, height= 45)
+        self.txt.config(font=("consolas", 12), undo=True, wrap=NONE)
+        self.txt.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+
+        # create a Scrollbar and associate it with txt
+        Yscrollb = Scrollbar(self.textFrame, command=self.txt.yview)
+        Yscrollb.grid(row=0, column=1, sticky='nsew')
+
+        Xscrollb = Scrollbar(self.textFrame, command=self.txt.xview, orient = HORIZONTAL)
+        Xscrollb.grid(row=1, column=0, sticky='nsew')
+
+        self.txt.config(xscrollcommand = Xscrollb.set, yscrollcommand = Yscrollb.set)
 
 
     def generateFile(self):

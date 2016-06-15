@@ -31,7 +31,7 @@ class popupWindow(object):
         x = w / 2 - size[0] / 2
         y = h / 2 - size[1] / 2
 
-        self.top.geometry("%dx%d+%d+%d" % (size + (x, y-200)))
+        self.top.geometry("%dx%d+%d+%d" % (size + (x, y-2)))
 
     def cleanup(self):
         if self.textFieldRequired == TRUE:
